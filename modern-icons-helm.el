@@ -5,8 +5,8 @@
 ;; Author: Ta Quang Trung <taquangtrungvn@gmail.com>
 ;; Version: 0.1.0
 ;; Created: May 27, 2025
-;; Homepage: https://github.com/taquangtrung/modern-icons.el
-;; Package-Requires: ((emacs "28.1"))
+;; Homepage: https://github.com/taquangtrung/modern-icons-helm.el
+;; Package-Requires: ((emacs "28.1") (modern-icons "0.1") (helm "3.0"))
 ;; Keywords: lisp, icons, vscode-icons, helm
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -25,12 +25,13 @@
 ;;; Commentary:
 
 ;; To use this package, simply install and add this to your init.el
+;;
 ;; (require 'modern-icons-helm)
+;; (modern-icons-helm-enable)
 
 ;; Acknowledgement:
 ;;
-;; This package is inspired by the following packages:
-;; - helm-icons: <https://github.com/yyoncho/helm-icons>
+;; This package is inspired by: helm-icons: <https://github.com/yyoncho/helm-icons>
 
 ;;; Code:
 
