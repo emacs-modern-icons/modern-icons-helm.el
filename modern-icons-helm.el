@@ -1,11 +1,11 @@
 ;;; modern-icons-helm.el --- Modern icons for Helm -*- lexical-binding: t -*-
 
-;; Copyright (C) 2025 Ta Quang Trung
+;; Copyright (C) 2025 Quang Trung Ta
 
-;; Author: Ta Quang Trung <taquangtrungvn@gmail.com>
+;; Author: Quang Trung Ta <taquangtrungvn@gmail.com>
 ;; Version: 0.1.0
 ;; Created: May 27, 2025
-;; Homepage: https://github.com/taquangtrung/modern-icons-helm.el
+;; Homepage: https://github.com/emacs-modern-icons/modern-icons-helm.el
 ;; Package-Requires: ((emacs "28.1") (modern-icons "0.1") (helm "3.0"))
 ;; Keywords: lisp, icons, vscode-icons, helm
 
