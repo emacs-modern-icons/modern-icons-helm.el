@@ -68,9 +68,9 @@
                    (modern-icons-icon-for-file buffer-name))))
     (and icon (concat (propertize " " 'display icon) " "))))
 
-(defun modern-icons-helm-mode-icon (mode-name)
-  "Get icon for a MODE-NAME."
-  (when-let* ((icon (modern-icons-icon-for-mode mode-name)))
+(defun modern-icons-helm-major-mode-icon (mode)
+  "Get icon for the major mode MODE."
+  (when-let* ((icon (modern-icons-icon-for-major-mode mode)))
     (concat (propertize " " 'display icon) " ")))
 
 (defun modern-icons-helm-persp-icon (persp-name)
@@ -96,7 +96,7 @@ CANDIDATES is the list of Helm candidates."
                      ((equal source-name "Git branches")
                       (modern-icons-helm-file-name-icon ".git"))
                      ((equal source-name "find-library")
-                      (modern-icons-helm-mode-icon "emacs-lisp-mode"))
+                      (modern-icons-helm-major-mode-icon "emacs-lisp-mode"))
                      ((member source-name '("+workspace/switch-to"
                                             "persp-frame-switch"))
                       (modern-icons-helm-persp-icon candidate))
@@ -109,15 +109,15 @@ CANDIDATES is the list of Helm candidates."
                                  (modern-icons-helm-file-name-icon file-name))
                             (modern-icons-helm-buffer-icon buff-name)
                             (and (not (equal major-mode 'fundamental-mode))
-                                 (modern-icons-helm-mode-icon major-mode))
+                                 (modern-icons-helm-major-mode-icon major-mode))
                             (and file-name
                                  (or (and (file-directory-p file-name)
                                           (modern-icons-helm-dir-icon file-name))
                                      (modern-icons-helm-file-ext-icon file-name)))
                             (and (or (char-equal ?* (aref buff-name 0))
                                      (char-equal ?\s (aref buff-name 0)))
-                                 (modern-icons-helm-mode-icon 'temporary-mode))
-                            (modern-icons-helm-mode-icon 'fundamental-mode))))
+                                 (modern-icons-helm-major-mode-icon 'temporary-mode))
+                            (modern-icons-helm-major-mode-icon 'fundamental-mode))))
                      ((stringp candidate)
                       (setq file-name candidate)
                       ;; Remove quotation in quoted file-name names if any
@@ -129,8 +129,8 @@ CANDIDATES is the list of Helm candidates."
                                (modern-icons-helm-dir-icon file-name))
                           (modern-icons-helm-file-name-icon file-name)
                           (modern-icons-helm-file-ext-icon file-name)
-                          (modern-icons-helm-mode-icon 'fundamental-mode)))
-                     (t (modern-icons-helm-mode-icon 'fundamental-mode)))))
+                          (modern-icons-helm-major-mode-icon 'fundamental-mode)))
+                     (t (modern-icons-helm-major-mode-icon 'fundamental-mode)))))
          (cons (concat icon display) candidate)))
      candidates)))
 
@@ -186,6 +186,7 @@ The advised function is `helm-make-source'."
                     "ediff-buffers"
                     "ediff-files"
                     "helm-find"
+                    "helm-grep-ag-directory"
                     "kill-buffer"
                     "persp-add-buffer"
                     "persp-remove-buffer"
