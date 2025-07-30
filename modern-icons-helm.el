@@ -244,7 +244,7 @@ The advised function is `helm-grep--filter-candidate-1'."
 (defun modern-icons-helm-imenu-advisor (_func type &rest _args)
   "Advise `helm-imenu' to display icons.
 The advised function is `helm-imenu-icon-for-type'."
-  (modern-icons-icon-for-code type))
+  (modern-icons-icon-for-code-item type))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public functions
