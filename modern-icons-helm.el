@@ -79,9 +79,13 @@
                         (modern-icons-default-file-icon))))
     (concat (propertize " " 'display icon) " ")))
 
-(defun modern-icons-helm-unknown-icon ()
-  "Create an unknown icon."
-  (when-let* ((icon (modern-icons-default-unkown-icon)))
+(defun modern-icons-helm-prefix-icon (prefix)
+  "Get icon for a prefix."
+  (when-let* ((icon (cond ((equal prefix "[?]")
+                           (modern-icons-create-icon "symbol-icons" "unknown.svg"))
+                          ((equal prefix "[+]")
+                           (modern-icons-create-icon "symbol-icons" "new.svg"))
+                          (t nil))))
     (concat (propertize " " 'display icon) " ")))
 
 (defun modern-icons-helm-add-icons (candidates source)
@@ -97,49 +101,50 @@ CANDIDATES is the list of Helm candidates."
                             ((stringp candidate) (get-buffer candidate))
                             (t nil)))
               (file-name nil)
-              (icon (cond
-                     ((equal source-candidates '("dummy"))
-                      (when (string-prefix-p " " display)
-                        (setq display (substring display 1)))
-                      (modern-icons-helm-unknown-icon))
-                     ((equal source-name "Git branches")
-                      (modern-icons-helm-file-name-icon ".git"))
-                     ((equal source-name "find-library")
-                      (modern-icons-helm-major-mode-icon "emacs-lisp-mode"))
-                     ((member source-name '("+workspace/switch-to"
-                                            "persp-frame-switch"))
-                      (modern-icons-helm-persp-icon candidate))
-                     (buffer
-                      (with-current-buffer buffer
-                        (setq buff-name (buffer-name)
-                              file-name (buffer-file-name))
-                        (or (and file-name
-                                 (not (file-directory-p file-name))
-                                 (modern-icons-helm-file-name-icon file-name))
-                            (modern-icons-helm-buffer-icon buff-name)
-                            (and (not (equal major-mode 'fundamental-mode))
-                                 (modern-icons-helm-major-mode-icon major-mode))
-                            (and file-name
-                                 (or (and (file-directory-p file-name)
-                                          (modern-icons-helm-dir-icon file-name))
-                                     (modern-icons-helm-file-ext-icon file-name)))
-                            (and (or (char-equal ?* (aref buff-name 0))
-                                     (char-equal ?\s (aref buff-name 0)))
-                                 (modern-icons-helm-major-mode-icon 'temporary-mode))
-                            (modern-icons-helm-major-mode-icon 'fundamental-mode))))
-                     ((stringp candidate)
-                      (setq file-name candidate)
-                      ;; Remove quotation in quoted file-name names if any
-                      (when (and (string-prefix-p "'" file-name)
-                                 (string-suffix-p "'" file-name)
-                                 (> (length file-name) 1))
-                        (setq file-name (substring file-name 1 (1- (length file-name)))))
-                      (or (and (file-directory-p file-name)
-                               (modern-icons-helm-dir-icon file-name))
-                          (modern-icons-helm-file-name-icon file-name)
-                          (modern-icons-helm-file-ext-icon file-name)
-                          (modern-icons-helm-major-mode-icon 'fundamental-mode)))
-                     (t (modern-icons-helm-major-mode-icon 'fundamental-mode)))))
+              (icon
+               (progn
+                 (cond ((equal source-candidates '("dummy"))
+                        (when (equal (get-text-property 0 'display display) "[?]")
+                          (setq display (substring display 1))
+                          (modern-icons-helm-prefix-icon "[?]")))
+                       ((equal source-name "Git branches")
+                        (modern-icons-helm-file-name-icon ".git"))
+                       ((equal source-name "find-library")
+                        (modern-icons-helm-major-mode-icon "emacs-lisp-mode"))
+                       ((member source-name '("+workspace/switch-to"
+                                              "persp-frame-switch"))
+                        (modern-icons-helm-persp-icon candidate))
+                       (buffer
+                        (with-current-buffer buffer
+                          (setq buff-name (buffer-name)
+                                file-name (buffer-file-name))
+                          (or (and file-name
+                                   (not (file-directory-p file-name))
+                                   (modern-icons-helm-file-name-icon file-name))
+                              (modern-icons-helm-buffer-icon buff-name)
+                              (and (not (equal major-mode 'fundamental-mode))
+                                   (modern-icons-helm-major-mode-icon major-mode))
+                              (and file-name
+                                   (or (and (file-directory-p file-name)
+                                            (modern-icons-helm-dir-icon file-name))
+                                       (modern-icons-helm-file-ext-icon file-name)))
+                              (and (or (char-equal ?* (aref buff-name 0))
+                                       (char-equal ?\s (aref buff-name 0)))
+                                   (modern-icons-helm-major-mode-icon 'temporary-mode))
+                              (modern-icons-helm-major-mode-icon 'fundamental-mode))))
+                       ((stringp candidate)
+                        (setq file-name candidate)
+                        ;; Remove quotation in quoted file-name names if any
+                        (when (and (string-prefix-p "'" file-name)
+                                   (string-suffix-p "'" file-name)
+                                   (> (length file-name) 1))
+                          (setq file-name (substring file-name 1 (1- (length file-name)))))
+                        (or (and (file-directory-p file-name)
+                                 (modern-icons-helm-dir-icon file-name))
+                            (modern-icons-helm-file-name-icon file-name)
+                            (modern-icons-helm-file-ext-icon file-name)
+                            (modern-icons-helm-major-mode-icon 'fundamental-mode)))
+                       (t (modern-icons-helm-major-mode-icon 'fundamental-mode))))))
          (cons (concat icon display) candidate)))
      candidates)))
 
@@ -213,20 +218,21 @@ The advised function is `helm-make-source'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Specific configuration for `helm-files'
 
-(defun modern-icons-helm-files-advisor (func disp fname &rest args)
-  "Advise `helm-files' to display icons. The advised function is
-`helm-ff-prefix-filename'."
-  (let* ((icon (cond ((null args) nil)
-                     ((or (string-match "/\\'" disp)
-                          (equal helm-buffer "*helm-mode-dired-create-directory*"))
-                      (or (modern-icons-icon-for-dir disp)
-                          (modern-icons-default-dir-icon)))
-                     (t (or (modern-icons-icon-for-file disp)
-                            (modern-icons-default-file-icon)))))
-         (disp (if icon (concat (propertize " " 'display icon) " "
-                                (propertize disp 'face 'helm-ff-prefix))
-                 disp)))
-    (apply func disp fname args)))
+(defun modern-icons-helm-files-advisor (func disp fname &optional new-file &rest args)
+  "Advise `helm-files' to display icons for new files.
+The advised function is `helm-ff-prefix-filename'."
+  (let* ((new-file-icon (cond ((null new-file) nil)
+                              ((or (string-match "/\\'" disp)
+                                   (equal helm-buffer "*helm-mode-dired-create-directory*"))
+                               (or (modern-icons-icon-for-dir disp)
+                                   (modern-icons-default-dir-icon)))
+                              (t (or (modern-icons-icon-for-file disp)
+                                     (modern-icons-default-file-icon))))))
+    (if new-file-icon
+        (concat (modern-icons-helm-prefix-icon "[+]")
+                (concat (propertize " " 'display new-file-icon) " ")
+                disp)
+      disp)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Specific configuration for `helm-grep'
