@@ -79,6 +79,11 @@
                         (modern-icons-default-file-icon))))
     (concat (propertize " " 'display icon) " ")))
 
+(defun modern-icons-helm-unknown-icon ()
+  "Create an unknown icon."
+  (when-let* ((icon (modern-icons-default-unkown-icon)))
+    (concat (propertize " " 'display icon) " ")))
+
 (defun modern-icons-helm-add-icons (candidates source)
   "Add icon to a buffer source or a file source.
 CANDIDATES is the list of Helm candidates."
@@ -100,6 +105,11 @@ CANDIDATES is the list of Helm candidates."
                      ((member source-name '("+workspace/switch-to"
                                             "persp-frame-switch"))
                       (modern-icons-helm-persp-icon candidate))
+                     ((equal source-name "Unknown candidate")
+                      ;; Remove the prefix question mark added by Helm
+                      (when (string-prefix-p " " display)
+                        (setq display (substring display 1)))
+                      (modern-icons-helm-unknown-icon))
                      (buffer
                       (with-current-buffer buffer
                         (setq buff-name (buffer-name)
@@ -154,6 +164,7 @@ The advised function is `helm-make-source'."
                            helm-ls-git-untracked-source
                            helm-recentf-source
                            helm-source-buffers
+                           helm-source-dummy
                            helm-source-ffiles
                            helm-source-findutils
                            helm-source-locate
