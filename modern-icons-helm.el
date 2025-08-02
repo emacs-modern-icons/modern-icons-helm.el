@@ -87,8 +87,8 @@
 (defun modern-icons-helm-add-icons (candidates source)
   "Add icon to a buffer source or a file source.
 CANDIDATES is the list of Helm candidates."
-  (let ((source-name (cdr (assoc 'name source))))
-    ;; (message "SOURCE NAME: %s" source-name)
+  (let ((source-name (cdr (assoc 'name source)))
+        (source-candidates (cdr (assoc 'candidates source))))
     (-map
      (-lambda (candidate)
        (let* ((display (if (listp candidate) (car candidate) candidate))
@@ -98,6 +98,10 @@ CANDIDATES is the list of Helm candidates."
                             (t nil)))
               (file-name nil)
               (icon (cond
+                     ((equal source-candidates '("dummy"))
+                      (when (string-prefix-p " " display)
+                        (setq display (substring display 1)))
+                      (modern-icons-helm-unknown-icon))
                      ((equal source-name "Git branches")
                       (modern-icons-helm-file-name-icon ".git"))
                      ((equal source-name "find-library")
@@ -105,11 +109,6 @@ CANDIDATES is the list of Helm candidates."
                      ((member source-name '("+workspace/switch-to"
                                             "persp-frame-switch"))
                       (modern-icons-helm-persp-icon candidate))
-                     ((equal source-name "Unknown candidate")
-                      ;; Remove the prefix question mark added by Helm
-                      (when (string-prefix-p " " display)
-                        (setq display (substring display 1)))
-                      (modern-icons-helm-unknown-icon))
                      (buffer
                       (with-current-buffer buffer
                         (setq buff-name (buffer-name)
