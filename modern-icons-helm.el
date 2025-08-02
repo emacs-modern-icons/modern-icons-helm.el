@@ -103,17 +103,22 @@ CANDIDATES is the list of Helm candidates."
               (file-name nil)
               (icon
                (progn
-                 (cond ((equal source-candidates '("dummy"))
-                        (when (equal (get-text-property 0 'display display) "[?]")
-                          (setq display (substring display 1))
-                          (modern-icons-helm-prefix-icon "[?]")))
-                       ((equal source-name "Git branches")
+                 (cond ((equal source-name "Git branches")
                         (modern-icons-helm-file-name-icon ".git"))
                        ((equal source-name "find-library")
                         (modern-icons-helm-major-mode-icon "emacs-lisp-mode"))
                        ((member source-name '("+workspace/switch-to"
                                               "persp-frame-switch"))
                         (modern-icons-helm-persp-icon candidate))
+                       ((equal source-name "Create buffer")
+                        (or (modern-icons-helm-buffer-icon display)
+                            (modern-icons-helm-major-mode-icon 'fundamental-mode)))
+                       ((equal source-candidates '("dummy"))
+                        (if (string-prefix-p " " display)
+                            (when (equal (get-text-property 0 'display display) "[?]")
+                              (setq display (substring display 1))
+                              (modern-icons-helm-prefix-icon "[?]"))
+                          (modern-icons-helm-prefix-icon "[?]")))
                        (buffer
                         (with-current-buffer buffer
                           (setq buff-name (buffer-name)
@@ -176,6 +181,7 @@ The advised function is `helm-make-source'."
            (modern-icons-helm-add-transformer #'modern-icons-helm-add-icons result))
           ((-any? (lambda (source-name) (s-match source-name name))
                   '("Buffers in hg project"
+                    "Create buffer"
                     "Elisp libraries"
                     "Find"
                     "Hg files list"
@@ -269,16 +275,22 @@ The advised function is `helm-imenu-icon-for-type'."
 (defun modern-icons-helm-enable ()
   "Enable `modern-icons-helm'."
   (interactive)
-  ;; General configuration for almost all Helm packages.
+  ;; Advise `'helm-make-source' to add icon transformer for almost all Helm packages.
   (advice-add 'helm-make-source :around #'modern-icons-helm-advisor)
-  ;; Configure `helm-locate'
+
+  ;; Some packages need to add icon transformer manually since
+  (modern-icons-helm-add-transformer #'modern-icons-helm-add-icons helm-source-buffer-not-found)
   (modern-icons-helm-add-transformer #'modern-icons-helm-add-icons helm-source-locate)
-  ;; Configure `helm-files'
+
+  ;; Specific configuration to other packages
+
+  ;; helm-files
   (advice-add 'helm-ff-prefix-filename :around #'modern-icons-helm-files-advisor)
-  ;; Configure `helm-grep'
+  ;; helm-grep
   (advice-add 'helm-grep--filter-candidate-1 :around #'modern-icons-helm-grep-advisor)
-  ;; Configure `helm-imenu'
+  ;; helm-imenu
   (advice-add 'helm-imenu-icon-for-type :around #'modern-icons-helm-imenu-advisor)
+
   (when (called-interactively-p 'any)
     (message "Modern-icons-helm is enabled!")))
 
