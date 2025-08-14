@@ -126,7 +126,8 @@ CANDIDATES is the list of Helm candidates."
                           (or (and file-name
                                    (not (file-directory-p file-name))
                                    (modern-icons-helm-file-name-icon file-name))
-                              (modern-icons-helm-buffer-icon buff-name)
+                              (and (not (member major-mode '(dired-mode wdired-mode)))
+                                   (modern-icons-helm-buffer-icon buff-name))
                               (and (not (equal major-mode 'fundamental-mode))
                                    (modern-icons-helm-major-mode-icon major-mode))
                               (and file-name
