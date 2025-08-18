@@ -76,7 +76,7 @@
 (defun modern-icons-helm-persp-icon (persp-name)
   "Get icon by matching PERSP-NAME."
   (when-let* ((icon (or (modern-icons-icon-for-persp persp-name)
-                        (modern-icons-default-file-icon))))
+                        (modern-icons-default-persp-icon))))
     (concat (propertize " " 'display icon) " ")))
 
 (defun modern-icons-helm-prefix-icon (prefix)
@@ -210,6 +210,7 @@ The advised function is `helm-make-source'."
                     "helm-find"
                     "helm-grep-ag-directory"
                     "kill-buffer"
+                    "lsp"
                     "lsp-workspace-folders-add"
                     "lsp-workspace-folders-open"
                     "lsp-workspace-folders-remove"
